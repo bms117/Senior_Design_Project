@@ -13,7 +13,10 @@ import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 //AWS
-import com.amazonaws.mobile.client.AWSMobileClient;
+//import com.amazonaws.mobile.client.AWSMobileClient;
+//import com.amazonaws.mobile.config.AWSConfiguration;
+//not working
+//import com.amazonaws.mobileconnectors.s3.transferutility.*;
 
 
 import java.util.List;
@@ -26,7 +29,7 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         //AWS
-        AWSMobileClient.getInstance().initialize(this).execute();
+        //AWSMobileClient.getInstance().initialize(this).execute();
 
         Button button = (Button) findViewById(R.id.button);
 
@@ -58,15 +61,15 @@ public class MainActivity extends AppCompatActivity {
 
     //variables
     public String time = "";
-    public int signalLevel = 0;
+//    public int signalLevel = 0;
     public int rssi = 0;
 
-    public void onReceive(WifiManager wifiManager) {
-        int numberOfLevels=5;
-        WifiInfo wifiInfo = wifiManager.getConnectionInfo();
-        int level=WifiManager.calculateSignalLevel(wifiInfo.getRssi(), numberOfLevels);
-        System.out.println("Bars =" +level);
-    }
+//    public void onReceive(WifiManager wifiManager) {
+//        int numberOfLevels=5;
+//        WifiInfo wifiInfo = wifiManager.getConnectionInfo();
+//        int level=WifiManager.calculateSignalLevel(wifiInfo.getRssi(), numberOfLevels);
+//        System.out.println("Bars =" +level);
+//    }
 
 
     // gets time stamp
@@ -101,8 +104,9 @@ public class MainActivity extends AppCompatActivity {
 
     public void updateTextViewWifi(int i){
         //getWifiStrength();
+        String j = String.valueOf(i);
         TextView textView = findViewById(R.id.wifistrength);
-        textView.setText(i);
+        textView.setText(j);
     }
 
     public void getWifiInfo(View view){
@@ -113,10 +117,11 @@ public class MainActivity extends AppCompatActivity {
             if(String.valueOf(wifiInfo.getSupplicantState()).equals("COMPLETED")){
                 Toast.makeText(this, wifiInfo.getSSID()+"", Toast.LENGTH_SHORT).show();
                 rssi = wifiInfo.getRssi();
-                wifiInfo.getBSSID();
+                //wifiInfo.getBSSID();
                 //wifiInfo.getFrequency();
-                wifiInfo.getIpAddress();
-                wifiInfo.getLinkSpeed();
+                //wifiInfo.getIpAddress();
+                //wifiInfo.getLinkSpeed();
+                //String d = calculateDistance(rssi);
                 updateTextViewWifi(rssi);
 
             }
@@ -129,6 +134,25 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 }
+
+//String calculateDistance(int rssi){
+//
+//    //power value hardcoded
+//    double txPower = -59;
+//
+//    if (rssi == 0) {
+//        return -1.0;
+//    }
+//
+//    double ratio = rssi*1.0/txPower;
+//    if (ratio < 1.0) {
+//        return Math.pow(ratio,10);
+//    }
+//    else {
+//        double distance =  (0.89976)*Math.pow(ratio,7.7095) + 0.111;
+//        return String.valueOf(distance);
+//    }
+//}
 
 
 
