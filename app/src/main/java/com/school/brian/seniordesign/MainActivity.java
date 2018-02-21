@@ -12,6 +12,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
+import java.util.concurrent.TimeUnit;
 //AWS
 //import com.amazonaws.mobile.client.AWSMobileClient;
 //import com.amazonaws.mobile.config.AWSConfiguration;
@@ -75,14 +76,33 @@ public class MainActivity extends AppCompatActivity {
     // gets time stamp
     public String getTimeStamp(){
         String time = "";
-        long timeInMillis = System.currentTimeMillis();
-        double seconds =  timeInMillis / 1000.0;
-        double minutes = (timeInMillis / (1000.0 * 60)) % 60;
-        double hours = (timeInMillis / (1000.0 * 60 * 60)) % 60;
+        long millis = System.currentTimeMillis();
+//        double seconds =  timeInMillis / 1000.0;
+//        double minutes = (timeInMillis / (1000.0 * 60)) % 60;
+//        double hours = (timeInMillis / (1000.0 * 60 * 60)) % 60;
+//        hours = (minutes*60)%60;
 
-        //
-        //time = minutes;
-        return String.valueOf(hours);
+        long days = TimeUnit.MILLISECONDS.toDays(millis);
+        millis -= TimeUnit.DAYS.toMillis(days);
+        long hours = TimeUnit.MILLISECONDS.toHours(millis);
+        millis -= TimeUnit.HOURS.toMillis(hours);
+        long minutes = TimeUnit.MILLISECONDS.toMinutes(millis);
+        millis -= TimeUnit.MINUTES.toMillis(minutes);
+        long seconds = TimeUnit.MILLISECONDS.toSeconds(millis);
+
+        StringBuilder sb = new StringBuilder(64);
+        //sb.append(days);
+        //sb.append(" Days ");
+        sb.append(hours);
+        sb.append(".");
+        sb.append(minutes);
+        sb.append(".");
+        sb.append(seconds);
+        sb.append(".");
+        sb.append(millis);
+
+
+        return(sb.toString());
     }
 
     // updates 'START' label wirh start time
@@ -97,10 +117,6 @@ public class MainActivity extends AppCompatActivity {
         textView.setText(time);
     }
 
-
-    public void getWifiStrength() {
-       // List<ScanResult> results = wifi.getScanResults();
-    }
 
     public void updateTextViewWifi(int i){
         //getWifiStrength();
