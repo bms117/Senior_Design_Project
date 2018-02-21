@@ -75,12 +75,7 @@ public class MainActivity extends AppCompatActivity {
 
     // gets time stamp
     public String getTimeStamp(){
-        String time = "";
         long millis = System.currentTimeMillis();
-//        double seconds =  timeInMillis / 1000.0;
-//        double minutes = (timeInMillis / (1000.0 * 60)) % 60;
-//        double hours = (timeInMillis / (1000.0 * 60 * 60)) % 60;
-//        hours = (minutes*60)%60;
 
         long days = TimeUnit.MILLISECONDS.toDays(millis);
         millis -= TimeUnit.DAYS.toMillis(days);
@@ -91,8 +86,6 @@ public class MainActivity extends AppCompatActivity {
         long seconds = TimeUnit.MILLISECONDS.toSeconds(millis);
 
         StringBuilder sb = new StringBuilder(64);
-        //sb.append(days);
-        //sb.append(" Days ");
         sb.append(hours);
         sb.append(".");
         sb.append(minutes);
@@ -100,7 +93,6 @@ public class MainActivity extends AppCompatActivity {
         sb.append(seconds);
         sb.append(".");
         sb.append(millis);
-
 
         return(sb.toString());
     }
@@ -117,9 +109,7 @@ public class MainActivity extends AppCompatActivity {
         textView.setText(time);
     }
 
-
     public void updateTextViewWifi(int i){
-        //getWifiStrength();
         String j = String.valueOf(i);
         TextView textView = findViewById(R.id.wifistrength);
         textView.setText(j);
