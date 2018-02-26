@@ -13,13 +13,17 @@ import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 import java.util.concurrent.TimeUnit;
+
 //AWS
-//import com.amazonaws.mobile.client.AWSMobileClient;
-//import com.amazonaws.mobile.config.AWSConfiguration;
-//not working
-//import com.amazonaws.mobileconnectors.s3.transferutility.*;
-
-
+import com.amazonaws.mobile.client.AWSMobileClient;
+import java.io.File;
+import com.amazonaws.mobile.config.AWSConfiguration;
+import com.amazonaws.mobileconnectors.s3.transferutility.*;
+import com.amazonaws.mobileconnectors.s3.transferutility.TransferUtility;
+import com.amazonaws.mobileconnectors.s3.transferutility.TransferState;
+import com.amazonaws.mobileconnectors.s3.transferutility.TransferObserver;
+import com.amazonaws.mobileconnectors.s3.transferutility.TransferListener;
+import com.amazonaws.services.s3.AmazonS3Client;
 import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
@@ -30,7 +34,7 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         //AWS
-        //AWSMobileClient.getInstance().initialize(this).execute();
+        AWSMobileClient.getInstance().initialize(this).execute();
 
         Button button = (Button) findViewById(R.id.button);
 
@@ -62,19 +66,10 @@ public class MainActivity extends AppCompatActivity {
 
     //variables
     public String time = "";
-//    public int signalLevel = 0;
-    public int rssi = 0;
-
-//    public void onReceive(WifiManager wifiManager) {
-//        int numberOfLevels=5;
-//        WifiInfo wifiInfo = wifiManager.getConnectionInfo();
-//        int level=WifiManager.calculateSignalLevel(wifiInfo.getRssi(), numberOfLevels);
-//        System.out.println("Bars =" +level);
-//    }
-
+    public double rssi = 0;
 
     // gets time stamp
-    public String getTimeStamp(){
+    public String getTimeStamp() {
         long millis = System.currentTimeMillis();
 
         long days = TimeUnit.MILLISECONDS.toDays(millis);
@@ -94,7 +89,7 @@ public class MainActivity extends AppCompatActivity {
         sb.append(".");
         sb.append(millis);
 
-        return(sb.toString());
+        return (sb.toString());
     }
 
     // updates 'START' label wirh start time
@@ -109,56 +104,54 @@ public class MainActivity extends AppCompatActivity {
         textView.setText(time);
     }
 
-    public void updateTextViewWifi(int i){
+    public void updateTextViewWifi(double i) {
         String j = String.valueOf(i);
         TextView textView = findViewById(R.id.wifistrength);
         textView.setText(j);
     }
 
-    public void getWifiInfo(View view){
+    public void getWifiInfo(View view) {
         WifiManager wifiManager = (WifiManager) getApplicationContext().getApplicationContext().getSystemService(getApplicationContext().WIFI_SERVICE);
 
-        if(wifiManager.isWifiEnabled()){
+        if (wifiManager.isWifiEnabled()) {
             WifiInfo wifiInfo = wifiManager.getConnectionInfo();
-            if(String.valueOf(wifiInfo.getSupplicantState()).equals("COMPLETED")){
-                Toast.makeText(this, wifiInfo.getSSID()+"", Toast.LENGTH_SHORT).show();
+            if (String.valueOf(wifiInfo.getSupplicantState()).equals("COMPLETED")) {
+                //Toast.makeText(this, wifiInfo.getSSID() + "", Toast.LENGTH_SHORT).show();
                 rssi = wifiInfo.getRssi();
                 //wifiInfo.getBSSID();
                 //wifiInfo.getFrequency();
                 //wifiInfo.getIpAddress();
                 //wifiInfo.getLinkSpeed();
-                //String d = calculateDistance(rssi);
-                updateTextViewWifi(rssi);
 
-            }
-            else {
+                double d = calculateDistance(rssi);
+                updateTextViewWifi(d);
+
+            } else {
                 Toast.makeText(this, "Please connect device to a wifi network", Toast.LENGTH_SHORT).show();
             }
-        }
-        else {
+        } else {
             wifiManager.setWifiEnabled(true);
         }
     }
-}
 
-//String calculateDistance(int rssi){
-//
-//    //power value hardcoded
-//    double txPower = -59;
-//
-//    if (rssi == 0) {
-//        return -1.0;
-//    }
-//
-//    double ratio = rssi*1.0/txPower;
-//    if (ratio < 1.0) {
-//        return Math.pow(ratio,10);
-//    }
-//    else {
-//        double distance =  (0.89976)*Math.pow(ratio,7.7095) + 0.111;
-//        return String.valueOf(distance);
-//    }
-//}
+    double calculateDistance(double rssi) {
+        double r = rssi;
+        //power value hardcoded
+        double txPower = -59;
+
+        if (r == 0) {
+            return -1.0;
+        }
+
+        double ratio = r * 1.0 / txPower;
+        if (ratio < 1.0) {
+            return Math.pow(ratio, 10);
+        } else {
+            double distance = (0.89976) * Math.pow(ratio, 7.7095) + 0.111;
+            return distance;
+        }
+    }
+}
 
 
 
