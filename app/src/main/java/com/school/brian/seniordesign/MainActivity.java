@@ -26,6 +26,7 @@ import com.amazonaws.mobileconnectors.s3.transferutility.TransferListener;
 import com.amazonaws.services.s3.AmazonS3Client;
 import java.util.List;
 
+
 public class MainActivity extends AppCompatActivity {
 
     @Override
@@ -110,6 +111,8 @@ public class MainActivity extends AppCompatActivity {
         textView.setText(j);
     }
 
+
+    // Gets WiFi info and updates the text on screen with distance and time stamps
     public void getWifiInfo(View view) {
         WifiManager wifiManager = (WifiManager) getApplicationContext().getApplicationContext().getSystemService(getApplicationContext().WIFI_SERVICE);
 
