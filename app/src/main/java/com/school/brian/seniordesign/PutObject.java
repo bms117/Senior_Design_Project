@@ -1,45 +1,66 @@
+// This class has the ability to put data into AWS
+
 package com.school.brian.seniordesign;
 
-//package aws.example.s3;
-//
-//import com.amazonaws.services.s3.AmazonS3;
-//import com.amazonaws.services.s3.AmazonS3ClientBuilder;
-//import com.amazonaws.AmazonServiceException;
-//import java.nio.file.Paths;
-//
-///**
-// * Upload a file to an Amazon S3 bucket.
-// *
-// * This code expects that you have AWS credentials set up per:
-// * http://docs.aws.amazon.com/java-sdk/latest/developer-guide/setup-credentials.html
-// */
-//public class PutObject
-//{
-//    public static void main(String[] args)
-//    {
-//        final String USAGE = "\n" +
-//                "To run this example, supply the name of an S3 bucket and a file to\n" +
-//                "upload to it.\n" +
-//                "\n" +
-//                "Ex: PutObject <bucketname> <filename>\n";
-//
-//        if (args.length < 2) {
-//            System.out.println(USAGE);
-//            System.exit(1);
-//        }
-//
-//        String bucket_name = args[0];
-//        String file_path = args[1];
-//        String key_name = Paths.get(file_path).getFileName().toString();
-//
-//        System.out.format("Uploading %s to S3 bucket %s...\n", file_path, bucket_name);
-//        final AmazonS3 s3 = AmazonS3ClientBuilder.defaultClient();
-//        try {
-//            s3.putObject(bucket_name, key_name, file_path);
-//        } catch (AmazonServiceException e) {
-//            System.err.println(e.getErrorMessage());
-//            System.exit(1);
-//        }
-//        System.out.println("Done!");
-//    }
-//}
+import android.app.Activity;
+import android.util.Log;
+
+import com.amazonaws.mobile.client.AWSMobileClient;
+import com.amazonaws.mobileconnectors.s3.transferutility.TransferUtility;
+import com.amazonaws.mobileconnectors.s3.transferutility.TransferState;
+import com.amazonaws.mobileconnectors.s3.transferutility.TransferObserver;
+import com.amazonaws.mobileconnectors.s3.transferutility.TransferListener;
+import com.amazonaws.services.s3.AmazonS3Client;
+
+import java.io.File;
+
+public class PutObject extends Activity {
+
+    public void uploadData() {
+
+        // Initialize AWSMobileClient if not initialized upon the app startup.
+        // AWSMobileClient.getInstance().initialize(this).execute();
+
+        TransferUtility transferUtility =
+                TransferUtility.builder()
+                        .context(getApplicationContext())
+                        .awsConfiguration(AWSMobileClient.getInstance().getConfiguration())
+                        .s3Client(new AmazonS3Client(AWSMobileClient.getInstance().getCredentialsProvider()))
+                        .build();
+
+        TransferObserver uploadObserver =
+                transferUtility.upload(
+                        "s3Folder/s3Key.txt",
+                        new File("/path/to/file/localFile.txt"));
+
+        uploadObserver.setTransferListener(new TransferListener() {
+
+            @Override
+            public void onStateChanged(int id, TransferState state) {
+                if (TransferState.COMPLETED == state) {
+                    // Handle a completed upload.
+                }
+            }
+
+            @Override
+            public void onProgressChanged(int id, long bytesCurrent, long bytesTotal) {
+                float percentDonef = ((float)bytesCurrent/(float)bytesTotal) * 100;
+                int percentDone = (int)percentDonef;
+
+                Log.d("MainActivity", "   ID:" + id + "   bytesCurrent: " + bytesCurrent + "   bytesTotal: " + bytesTotal + " " + percentDone + "%");
+            }
+
+            @Override
+            public void onError(int id, Exception ex) {
+                // Handle errors
+            }
+
+        });
+
+        // If your upload does not trigger the onStateChanged method inside your
+        // TransferListener, you can directly check the transfer state as shown here.
+        if (TransferState.COMPLETED == uploadObserver.getState()) {
+            // Handle a completed upload.
+        }
+    }
+}
