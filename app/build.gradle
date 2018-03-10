@@ -26,7 +26,7 @@ dependencies {
     androidTestImplementation 'com.android.support.test:runner:1.0.1'
     androidTestImplementation 'com.android.support.test.espresso:espresso-core:3.0.1'
 
-    //AWS not working bottom 2
+    //AWS
     compile ('com.amazonaws:aws-android-sdk-mobile-client:2.6.7@aar') { transitive = true; }
     compile 'com.amazonaws:aws-android-sdk-s3:2.6.+'
     compile 'com.amazonaws:aws-android-sdk-cognito:2.6.+'
@@ -43,3 +43,21 @@ buildscript {
 }
 
 apply plugin: "io.spring.dependency-management"
+
+dependencyManagement {
+    imports {
+        mavenBom 'com.amazonaws:aws-java-sdk-bom:1.11.228'
+    }
+}
+
+sourceCompatibility = 1.8
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    //compile 'com.amazonaws:aws-java-sdk-s3'
+    compile 'com.amazonaws:aws-android-sdk-ddb-mapper:2.6.+'
+    testCompile group: 'junit', name: 'junit', version: '4.11'
+}
