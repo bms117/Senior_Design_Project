@@ -5,6 +5,8 @@ import android.content.Context;
 import android.net.wifi.ScanResult;
 import android.net.wifi.WifiInfo;
 import android.net.wifi.WifiManager;
+import android.os.Build;
+import android.support.annotation.RequiresApi;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.MotionEvent;
@@ -12,6 +14,11 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import java.io.BufferedWriter;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.PrintWriter;
 import java.util.concurrent.TimeUnit;
 
 //AWS
@@ -23,17 +30,14 @@ import com.amazonaws.mobileconnectors.s3.transferutility.TransferUtility;
 import com.amazonaws.mobileconnectors.s3.transferutility.TransferState;
 import com.amazonaws.mobileconnectors.s3.transferutility.TransferObserver;
 import com.amazonaws.mobileconnectors.s3.transferutility.TransferListener;
-import com.amazonaws.services.dynamodbv2.AmazonDynamoDBClient;
 import com.amazonaws.services.s3.AmazonS3Client;
 import java.util.List;
 
-// import DynamoDBMapper
-import com.amazonaws.mobileconnectors.dynamodbv2.dynamodbmapper.DynamoDBMapper;
 
 
 public class MainActivity extends AppCompatActivity {
 
-    private DynamoDBMapper dynamoDBMapper;
+    private static Context mContext;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -42,19 +46,11 @@ public class MainActivity extends AppCompatActivity {
 
         //AWS
         AWSMobileClient.getInstance().initialize(this).execute();
-        // Declare a DynamoDBMapper object
-        DynamoDBMapper dynamoDBMapper;
-
-        // Instantiate a AmazonDynamoDBMapperClient
-        AmazonDynamoDBClient dynamoDBClient = new AmazonDynamoDBClient(AWSMobileClient.getInstance().getCredentialsProvider());
-        this.dynamoDBMapper = DynamoDBMapper.builder()
-                .dynamoDBClient(dynamoDBClient)
-                .awsConfiguration(AWSMobileClient.getInstance().getConfiguration())
-                .build();
 
         Button button = (Button) findViewById(R.id.button);
 
         button.setOnTouchListener(new View.OnTouchListener() {
+            @RequiresApi(api = Build.VERSION_CODES.KITKAT)
             @Override
             public boolean onTouch(View v, MotionEvent event) {
                 getWifiInfo(v);
@@ -62,6 +58,7 @@ public class MainActivity extends AppCompatActivity {
                     case MotionEvent.ACTION_DOWN:
                         // PRESSED
                         time = getTimeStamp();
+                        time1 = time;
                         updateTextViewStart(time);
 
                         //update wifi strength while button is down
@@ -70,8 +67,27 @@ public class MainActivity extends AppCompatActivity {
                     case MotionEvent.ACTION_UP:
                         // RELEASED
                         time = getTimeStamp();
+                        time2 = time;
                         updateTextViewStop(time);
                         //update wifi strength while button is down
+
+                        //save time stamp interval and wifi strength to file to send to AWS
+//                        PutObject p = new PutObject();
+//
+//                        try(FileWriter fw = new FileWriter(Filename, true);
+//                            BufferedWriter bw = new BufferedWriter(fw);
+//                            PrintWriter out = new PrintWriter(bw))
+//                        {
+//                            out.println(time1);
+//                            out.println(time2);
+//                            out.println(distanceCalculated);
+//                        } catch (IOException e) {
+//                            //exception handling left as an exercise for the reader
+//                        }
+//
+//                        p.generateTextFileOnSD(mContext, Filename, Body);
+//                        p.uploadData();
+
                         return true; // if you want to handle the touch event
                 }
                 return false;
@@ -82,7 +98,11 @@ public class MainActivity extends AppCompatActivity {
 
     //variables
     public String time = "";
+    public String time1, time2;
     public double rssi = 0;
+    public String Filename = "File";
+    public String Body = "";
+    public String distanceCalculated;
 
     // gets time stamp
     public String getTimeStamp() {
@@ -166,6 +186,7 @@ public class MainActivity extends AppCompatActivity {
             return Math.pow(ratio, 10);
         } else {
             double distance = (0.89976) * Math.pow(ratio, 7.7095) + 0.111;
+            distanceCalculated = String.valueOf(distance);
             return distance;
         }
     }

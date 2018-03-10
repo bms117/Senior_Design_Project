@@ -3,7 +3,10 @@
 package com.school.brian.seniordesign;
 
 import android.app.Activity;
+import android.content.Context;
+import android.os.Environment;
 import android.util.Log;
+import android.widget.Toast;
 
 import com.amazonaws.mobile.client.AWSMobileClient;
 import com.amazonaws.mobileconnectors.s3.transferutility.TransferUtility;
@@ -13,6 +16,8 @@ import com.amazonaws.mobileconnectors.s3.transferutility.TransferListener;
 import com.amazonaws.services.s3.AmazonS3Client;
 
 import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
 
 public class PutObject extends Activity {
 
@@ -63,4 +68,23 @@ public class PutObject extends Activity {
             // Handle a completed upload.
         }
     }
+
+    // This function saved a .txt file to an sd card
+    public void generateTextFileOnSD(Context context, String sFileName, String sBody) {
+        try {
+            File root = new File(Environment.getExternalStorageDirectory(), "File");
+            if (!root.exists()) {
+                root.mkdirs();
+            }
+            File gpxfile = new File(root, sFileName);
+            FileWriter writer = new FileWriter(gpxfile);
+            writer.append(sBody);
+            writer.flush();
+            writer.close();
+            Toast.makeText(context, "Saved", Toast.LENGTH_SHORT).show();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
 }
