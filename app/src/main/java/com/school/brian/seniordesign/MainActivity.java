@@ -72,21 +72,21 @@ public class MainActivity extends AppCompatActivity {
                         //update wifi strength while button is down
 
                         //save time stamp interval and wifi strength to file to send to AWS
-//                        PutObject p = new PutObject();
-//
-//                        try(FileWriter fw = new FileWriter(Filename, true);
-//                            BufferedWriter bw = new BufferedWriter(fw);
-//                            PrintWriter out = new PrintWriter(bw))
-//                        {
-//                            out.println(time1);
-//                            out.println(time2);
-//                            out.println(distanceCalculated);
-//                        } catch (IOException e) {
-//                            //exception handling left as an exercise for the reader
-//                        }
-//
-//                        p.generateTextFileOnSD(mContext, Filename, Body);
-//                        p.uploadData();
+                        PutObject p = new PutObject();
+
+                        try(FileWriter fw = new FileWriter(Filename, true);
+                            BufferedWriter bw = new BufferedWriter(fw);
+                            PrintWriter out = new PrintWriter(bw))
+                        {
+                            out.println(time1);
+                            out.println(time2);
+                            out.println(distanceCalculated);
+                        } catch (IOException e) {
+                            //exception handling left as an exercise for the reader
+                        }
+
+                        p.generateTextFileOnSD(mContext, Filename, Body);
+                       // p.uploadData();
 
                         return true; // if you want to handle the touch event
                 }
@@ -100,7 +100,7 @@ public class MainActivity extends AppCompatActivity {
     public String time = "";
     public String time1, time2;
     public double rssi = 0;
-    public String Filename = "File";
+    public String Filename = "File.txt";
     public String Body = "";
     public String distanceCalculated;
 

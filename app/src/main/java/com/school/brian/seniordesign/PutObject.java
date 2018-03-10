@@ -72,9 +72,10 @@ public class PutObject extends Activity {
     // This function saved a .txt file to an sd card
     public void generateTextFileOnSD(Context context, String sFileName, String sBody) {
         try {
-            File root = new File(Environment.getExternalStorageDirectory(), "File");
+            File root = new File(Environment.getExternalStorageDirectory(), "Note");
             if (!root.exists()) {
                 root.mkdirs();
+
             }
             File gpxfile = new File(root, sFileName);
             FileWriter writer = new FileWriter(gpxfile);
@@ -84,6 +85,7 @@ public class PutObject extends Activity {
             Toast.makeText(context, "Saved", Toast.LENGTH_SHORT).show();
         } catch (IOException e) {
             e.printStackTrace();
+            //Toast.makeText(context, "NOT Saved", Toast.LENGTH_SHORT).show();
         }
     }
 
