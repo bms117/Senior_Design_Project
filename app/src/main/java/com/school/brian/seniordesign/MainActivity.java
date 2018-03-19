@@ -35,6 +35,7 @@ import java.util.concurrent.TimeUnit;
 //AWS
 import com.amazonaws.auth.AWSCredentials;
 import com.amazonaws.auth.BasicAWSCredentials;
+import com.amazonaws.auth.CognitoCachingCredentialsProvider;
 import com.amazonaws.mobile.client.AWSMobileClient;
 import java.io.File;
 import com.amazonaws.mobile.config.AWSConfiguration;
@@ -45,14 +46,33 @@ import com.amazonaws.mobileconnectors.s3.transferutility.TransferUtility;
 import com.amazonaws.mobileconnectors.s3.transferutility.TransferState;
 import com.amazonaws.mobileconnectors.s3.transferutility.TransferObserver;
 import com.amazonaws.mobileconnectors.s3.transferutility.TransferListener;
+import com.amazonaws.regions.Region;
+import com.amazonaws.regions.Regions;
 import com.amazonaws.services.s3.AmazonS3Client;
+import com.amazonaws.services.s3.model.ObjectMetadata;
+
 import java.util.List;
 
 
 public class MainActivity extends AppCompatActivity {
 
+    //variables
+    public String time = "";
+    public String time1, time2;
+    public double rssi = 0;
+    String filePath = String.valueOf(Environment.getDataDirectory());
+    public File file = new File(filePath);
+    public String Body = "";
+    public String distanceCalculated = "";
+    AmazonS3Client s3;
+    TransferUtility transferUtility;
     private static Context Context;
+    public String Bucket = "AWS_TEST.txt";
+    public String filePathMyabe = "/storage/emulated/0/DCIM/";
+    public String Filename = "File.txt";
 
+
+    // Creates everything on start-up
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -65,6 +85,7 @@ public class MainActivity extends AppCompatActivity {
 
         Button button = (Button) findViewById(R.id.button);
 
+        // performs actions on button press
         button.setOnTouchListener(new View.OnTouchListener() {
             @RequiresApi(api = Build.VERSION_CODES.KITKAT)
             @Override
@@ -90,7 +111,7 @@ public class MainActivity extends AppCompatActivity {
                         //save time stamp interval and wifi strength to file to send to AWS
                        // PutObject p = new PutObject();
 
-                        wrtieFileOnInternalStorage(context, Filename, time1);
+                        writeFileOnInternalStorage(Context, Filename, time1);
                         uploadData();
 
                         return true; // if you want to handle the touch event
@@ -100,16 +121,6 @@ public class MainActivity extends AppCompatActivity {
         });
 
     }
-
-    //variables
-    public String time = "";
-    public String time1, time2;
-    public double rssi = 0;
-    public String Filename = "File.txt";
-    String filePath = String.valueOf(Environment.getDataDirectory());
-    public File file = new File(filePath);
-    public String Body = "";
-    public String distanceCalculated = "";
 
     // gets time stamp
     public String getTimeStamp() {
@@ -147,12 +158,12 @@ public class MainActivity extends AppCompatActivity {
         textView.setText(time);
     }
 
+    // updates wifi text
     public void updateTextViewWifi(double i) {
         String j = String.valueOf(i);
         TextView textView = findViewById(R.id.wifistrength);
         textView.setText(j);
     }
-
 
     // Gets WiFi info and updates the text on screen with distance and time stamps
     public void getWifiInfo(View view) {
@@ -179,6 +190,7 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    // calculates a distance via wifi signal strength (needs to be worked and tested)
     double calculateDistance(double rssi) {
         double r = rssi;
         //power value hardcoded
@@ -198,11 +210,7 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-
-
-
-
-
+    // uploads data to AWS
     public void uploadData() {
 
 //        AWSCredentials credential = new BasicAWSCredentials("AKIAJZRYD3T2Z4BWI3JA", "XICb8jyxVXdb7sIkkdxr0LZAtsVALDa9tMnEpWmQ");
@@ -281,8 +289,8 @@ public class MainActivity extends AppCompatActivity {
 //        }
 //    }
 
-
-    public void wrtieFileOnInternalStorage(Context mcoContext,String sFileName, String sBody){
+    // writes t a file to internal storage
+    public void writeFileOnInternalStorage(Context mcoContext,String sFileName, String sBody){
         File file = new File(mcoContext.getFilesDir(),Filename);
         if(!file.exists()){
             file.mkdir();
@@ -305,7 +313,44 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
+    public void credentialsProvider() {
+
+        // Initialize the Amazon Cognito credentials provider
+        CognitoCachingCredentialsProvider credentialsProvider = new CognitoCachingCredentialsProvider(
+                getApplicationContext(),
+                "us-east-2:db3866b0-badd-4a4d-b409-494bdc47a26b", // Identity pool ID
+                Regions.US_EAST_2 // Region
+        );
+
+        setAmazonS3Client(credentialsProvider);
+
+    }
+
+    public void setAmazonS3Client(CognitoCachingCredentialsProvider credentialsProvider){
+
+        // Create an S3 client
+        s3 = new AmazonS3Client(credentialsProvider);
+        // set the region of the bucket
+        s3.setRegion(Region.getRegion(Regions.US_EAST_2));
+
+    }
+
+    public void setTransferUtility() {
+
+        transferUtility = new TransferUtility(s3, getApplicationContext());
+
+    }
+//
+//    public void setFileToDownload(View v){
+//
+//        TransferObserver transferObserver = transferUtility.upload("this-is-a-test-dt04",file, Filename
+//
+//        );
+//    }
+
 }
+
+
 
 
 
