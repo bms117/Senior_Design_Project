@@ -20,6 +20,7 @@ import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -29,6 +30,7 @@ import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.util.concurrent.TimeUnit;
 
@@ -57,12 +59,13 @@ import java.util.List;
 public class MainActivity extends AppCompatActivity {
 
     //variables
+    EditText body;
     public String time = "";
     public String time1, time2;
     public double rssi = 0;
     String filePath = String.valueOf(Environment.getDataDirectory());
     public File file = new File(filePath);
-    public String Body = "";
+   // public String Body = "";
     public String distanceCalculated = "";
     AmazonS3Client s3;
     TransferUtility transferUtility;
@@ -106,13 +109,9 @@ public class MainActivity extends AppCompatActivity {
                         time = getTimeStamp();
                         time2 = time;
                         updateTextViewStop(time);
-                        //update wifi strength while button is down
-
-                        //save time stamp interval and wifi strength to file to send to AWS
-                       // PutObject p = new PutObject();
-
-                        writeFileOnInternalStorage(Context, Filename, time1);
-                        uploadData();
+                        //write try 2
+                        Write(v);
+                        //uploadData();
 
                         return true; // if you want to handle the touch event
                 }
@@ -235,7 +234,7 @@ public class MainActivity extends AppCompatActivity {
         TransferObserver uploadObserver =
                 transferUtility.upload(
                         "uploads/README.txt",
-                        new File(filePath));
+                        new File(filePath + "/File.txte"));
 
         uploadObserver.setTransferListener(new TransferListener() {
 
@@ -290,29 +289,29 @@ public class MainActivity extends AppCompatActivity {
 //    }
 
     // writes t a file to internal storage
-    public void writeFileOnInternalStorage(Context mcoContext,String sFileName, String sBody){
-        File file = new File(mcoContext.getFilesDir(),Filename);
-        if(!file.exists()){
-            file.mkdir();
-            Toast.makeText(getBaseContext(),"file created",Toast.LENGTH_SHORT).show();
-        }
+//    public void writeFileOnInternalStorage(Context mcoContext,String sFileName, String sBody){
+//        File file = new File(mcoContext.getFilesDir(),Filename);
+//        if(!file.exists()){
+//            file.mkdir();
+//            Toast.makeText(getBaseContext(),"file created",Toast.LENGTH_SHORT).show();
+//        }
+//
+//        try{
+//            File gpxfile = new File(file, sFileName);
+//            FileWriter writer = new FileWriter(gpxfile);
+//            writer.append(sBody);
+//            writer.flush();
+//            writer.close();
+//
+//            Toast.makeText(getBaseContext(),"file saved",Toast.LENGTH_SHORT).show();
+//
+//        }catch (Exception e){
+//            e.printStackTrace();
+//
+//        }
+//    }
 
-        try{
-            File gpxfile = new File(file, sFileName);
-            FileWriter writer = new FileWriter(gpxfile);
-            writer.append(sBody);
-            writer.flush();
-            writer.close();
-
-            Toast.makeText(getBaseContext(),"file saved",Toast.LENGTH_SHORT).show();
-
-        }catch (Exception e){
-            e.printStackTrace();
-
-        }
-    }
-
-
+    //gets AWS credentials
     public void credentialsProvider() {
 
         // Initialize the Amazon Cognito credentials provider
@@ -326,6 +325,7 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
+
     public void setAmazonS3Client(CognitoCachingCredentialsProvider credentialsProvider){
 
         // Create an S3 client
@@ -336,8 +336,8 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void setTransferUtility() {
-
         transferUtility = new TransferUtility(s3, getApplicationContext());
+
 
     }
 //
@@ -348,7 +348,30 @@ public class MainActivity extends AppCompatActivity {
 //        );
 //    }
 
+
+    //attempt 2 to write to internal storage
+    // write text to file
+    public void Write(View v) {
+        // add-write text into file
+        try {
+            FileOutputStream fileout=openFileOutput(Filename, MODE_PRIVATE);
+            OutputStreamWriter outputWriter=new OutputStreamWriter(fileout);
+            outputWriter.write(body.getText().toString());
+            outputWriter.close();
+
+            //display file saved message
+            Toast.makeText(getBaseContext(), "File saved successfully!",
+                    Toast.LENGTH_SHORT).show();
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+
 }
+
+
 
 
 
